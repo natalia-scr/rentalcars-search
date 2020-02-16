@@ -1,7 +1,6 @@
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import './App.scss';
-const baseUrl = 'https://api.codetabs.com/v1/proxy?quest=';
-const searchResultsNumber = 6;
+import { useFetchResults } from './useFetchResults'
 
 function App() {
   return (
@@ -14,32 +13,9 @@ function App() {
   );
 }
 
-
 const SearchBox = () => {
 
-const [query, setQuery] = useState("");
-const [results, setResults] = useState([]);
-
-useEffect(() => {
-  if(query.length < 2) {
-      setResults([])
-
-  } else {
-    async function fetchResults () {
-      const encodedURL = encodeURIComponent(`https://www.rentalcars.com/FTSAutocomplete.do?solrIndex=fts_en&solrRows=${searchResultsNumber}&solrTerm=${query}`)
-        const response = await fetch(`${baseUrl}${encodedURL}`);
-        const json =  await response.json();
-
-        if(json.results.numFound === 0) {
-          setResults(['none'])
-        } else {
-          setResults(json.results.docs);
-        }
-    }
-    fetchResults()
-  }
-  
-}, [query])
+const [query, setQuery, results] = useFetchResults();
 
   return (
     <div className="searchbox">
