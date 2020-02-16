@@ -62,6 +62,23 @@ html {
   }
 }
 
+.input-container {
+    position: relative;
+}
+.spinner {
+    position: absolute;
+    top: 3px;
+    top: 0;
+    right: 0;
+    bottom: 3px;
+    padding: 10px;
+
+    & img {
+        width: 27px;
+        animation: spinner infinite 1s linear;
+    }
+}
+
 .search-results {
   position: absolute;
   z-index: 10;
@@ -70,6 +87,15 @@ html {
   border-radius: 4px;
   display: flex;
   flex-direction: column;
+}
+
+@keyframes spinner {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (min-width: 768px) {

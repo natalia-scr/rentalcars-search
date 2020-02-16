@@ -4,6 +4,29 @@ import App from './App';
 
 const nock = require('nock')
 
+const mockFetch = (searchTerm) => {
+  const encodedURL = encodeURIComponent(`https://www.rentalcars.com/FTSAutocomplete.do?solrIndex=fts_en&solrRows=6&solrTerm=${searchTerm}`)
+
+  nock('https://api.codetabs.com/v1')
+    .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
+    .get(`/proxy?quest=${encodedURL}`)
+    .reply(200, {
+      "results": {
+        "docs": [
+          {
+            "bookingId": "city-2810615",
+            "name": "Searcy",
+            "region": "Alabama",
+          },
+          {
+            "bookingId": "city-2810615",
+            "name": "Manchester",
+            "region": "Greater Manchester", 
+          }
+        ]}
+    })
+}
+
 describe('given I am a visitor on the search app homepage', () => {
 
   it("I should see the search box title and a text box labelled 'Pick-up Location'", () => {
@@ -33,31 +56,15 @@ describe('given I am a visitor on the search app homepage', () => {
 
   it('When 2 or more characters into the pick up location, the search results are displayed', async () => {
     const searchTerm = 'manchester'
-    const encodedURL = encodeURIComponent(`https://www.rentalcars.com/FTSAutocomplete.do?solrIndex=fts_en&solrRows=6&solrTerm=${searchTerm}`)
-
-    nock('https://api.codetabs.com/v1')
-    .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
-    .get(`/proxy?quest=${encodedURL}`)
-    .reply(200, {
-      "results": {
-        "docs": [
-          {
-            "bookingId": "city-2810615",
-            "name": "Searcy",
-            "region": "Alabama",
-          },
-          {
-            "bookingId": "city-2810615",
-            "name": "Manchester",
-            "region": "Greater Manchester", 
-          }
-        ]}
-    })
-    const { getByLabelText, queryByTestId, getByText } = render(<App />);
+    mockFetch(searchTerm);
+    
+    const { getByLabelText, queryByTestId, getByText, getByAltText } = render(<App />);
     const input = getByLabelText(/Pick-up Location/g);
 
     fireEvent.change(input, {target : {value : searchTerm}});
     expect(input.value).toBe(searchTerm)
+
+    getByAltText('spinner')
 
     await waitForElement(() => getByText('Manchester'))
 
@@ -91,26 +98,8 @@ describe('given I am a visitor on the search app homepage', () => {
 
   it('Given a list of results is displayed, When I remove the search term leaving only 1 character, Then the search results list no longer displayed', async () => {
     const searchTerm = 'manchester'
-    const encodedURL = encodeURIComponent(`https://www.rentalcars.com/FTSAutocomplete.do?solrIndex=fts_en&solrRows=6&solrTerm=${searchTerm}`)
-
-    nock('https://api.codetabs.com/v1')
-    .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
-    .get(`/proxy?quest=${encodedURL}`)
-    .reply(200, {
-      "results": {
-        "docs": [
-          {
-            "bookingId": "city-2810615",
-            "name": "Searcy",
-            "region": "Alabama",
-          },
-          {
-            "bookingId": "city-2810615",
-            "name": "Manchester",
-            "region": "Greater Manchester", 
-          }
-        ]}
-    })
+    mockFetch(searchTerm);
+    
     const { getByLabelText, queryByTestId, getByText } = render(<App />);
     const input = getByLabelText(/Pick-up Location/g);
 
